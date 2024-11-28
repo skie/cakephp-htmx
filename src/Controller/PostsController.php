@@ -18,9 +18,21 @@ class PostsController extends AppController
     public function index()
     {
         $query = $this->Posts->find();
-        $posts = $this->paginate($query);
-
+        $posts = $this->paginate($query, ['limit' => 12]);
         $this->set(compact('posts'));
+
+        if ($this->request->is('htmx') || $this->request->is('boosted')) {
+            $this->response = $this->response
+                ->withHeader('Cache-Control', 'no-store, no-cache, must-revalidate')
+                ->withHeader('Pragma', 'no-cache')
+                ->withHeader('Expires', '0');
+        }
+        if($this->getRequest()->is('htmx')) {
+            $this->viewBuilder()->disableAutoLayout();
+
+            $this->Htmx->setBlock('posts');
+            sleep(1); // timeout to demonstrate loader functionality
+        }
     }
 
     /**
