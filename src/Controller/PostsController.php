@@ -17,6 +17,37 @@ class PostsController extends AppController
      */
     public function index()
     {
+        $this->list();
+    }
+
+    /**
+     * Cards Index method
+     *
+     * @return \Cake\Http\Response|null|void Renders view
+     */
+    public function cards()
+    {
+        $this->list();
+    }
+
+    /**
+     * Infinite Index method
+     *
+     * @return \Cake\Http\Response|null|void Renders view
+     */
+    public function infinite()
+    {
+        $this->list();
+    }
+
+
+    /**
+     * Common Index method
+     *
+     * @return \Cake\Http\Response|null|void Renders view
+     */
+    protected function list()
+    {
         $query = $this->Posts->find();
         $posts = $this->paginate($query, ['limit' => 12]);
         $this->set(compact('posts'));
@@ -27,7 +58,7 @@ class PostsController extends AppController
                 ->withHeader('Pragma', 'no-cache')
                 ->withHeader('Expires', '0');
         }
-        if($this->getRequest()->is('htmx')) {
+        if ($this->getRequest()->is('htmx')) {
             $this->viewBuilder()->disableAutoLayout();
 
             $this->Htmx->setBlock('posts');
@@ -101,12 +132,32 @@ class PostsController extends AppController
     {
         $this->request->allowMethod(['post', 'delete']);
         $post = $this->Posts->get($id);
-        if ($this->Posts->delete($post)) {
-            $this->Flash->success(__('The post has been deleted.'));
+        $deleted = $this->Posts->delete($post);
+        if ($deleted) {
+            $message = __('The post has been deleted.');
+            $status = 'success';
         } else {
-            $this->Flash->error(__('The post could not be deleted. Please, try again.'));
+            $message = __('The post could not be deleted. Please, try again.');
+            $status = 'error';
         }
 
-        return $this->redirect(['action' => 'index']);
+        if ($this->getRequest()->is('htmx')) {
+            $response = [
+                'messages' => [
+                    ['message' => $message, 'status' => $status],
+                ],
+                'removeContainer' => true,
+            ];
+
+            return $this->getResponse()
+                ->withType('json')
+                ->withHeader('X-Response-Type', 'json')
+                ->withStringBody(json_encode($response));
+
+        } else {
+            $this->Flash->{$status}($message);
+
+            return $this->redirect(['action' => 'index']);
+        }
     }
 }
