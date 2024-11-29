@@ -66,6 +66,23 @@ class PostsController extends AppController
     }
 
     /**
+     * Table actions
+     *
+     * @param int $id Post id.
+     * @return \Cake\Http\Response|null|void Renders view
+     */
+    public function tableActions(int $id)
+    {
+        $post = $this->Posts->get($id, contain: []);
+        if ($this->getRequest()->is('htmx')) {
+            $this->viewBuilder()->disableAutoLayout();
+
+            $this->Htmx->setBlock('actions');
+        }
+        $this->set(compact('post'));
+    }
+
+    /**
      * Inline edit
      *
      * @param int $id Post id.
