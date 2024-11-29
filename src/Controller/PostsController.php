@@ -40,7 +40,6 @@ class PostsController extends AppController
         $this->list();
     }
 
-
     /**
      * Common Index method
      *
@@ -67,13 +66,48 @@ class PostsController extends AppController
     }
 
     /**
+     * Inline edit
+     *
+     * @param int $id Post id.
+     * @param string $field Field name.
+     * @return \Cake\Http\Response|null|void Renders view
+     */
+    public function inlineEdit(int $id, string $field)
+    {
+        $post = $this->Posts->get($id, contain: []);
+        $allowedFields = ['title', 'overview', 'body', 'is_published'];
+        if (!in_array($field, $allowedFields)) {
+            return $this->response->withStatus(403);
+        }
+        $mode = 'edit';
+        if ($this->request->is(['post', 'put'])) {
+            if ($this->request->getData('button') == 'cancel') {
+                $mode = 'view';
+            } else {
+                $value = $this->request->getData($field);
+                $post->set($field, $value);
+                $result = $this->Posts->save($post);
+                if ($result) {
+                    $mode = 'view';
+                }
+            }
+        }
+        if ($this->getRequest()->is('htmx')) {
+            $this->viewBuilder()->disableAutoLayout();
+
+            $this->Htmx->setBlock('edit');
+        }
+        $this->set(compact('post', 'mode', 'field'));
+    }
+
+    /**
      * View method
      *
-     * @param string|null $id Post id.
+     * @param int $id Post id.
      * @return \Cake\Http\Response|null|void Renders view
      * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
      */
-    public function view($id = null)
+    public function view(int $id)
     {
         $post = $this->Posts->get($id, contain: []);
         $this->set(compact('post'));
@@ -102,11 +136,11 @@ class PostsController extends AppController
     /**
      * Edit method
      *
-     * @param string|null $id Post id.
+     * @param int $id Post id.
      * @return \Cake\Http\Response|null|void Redirects on successful edit, renders view otherwise.
      * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
      */
-    public function edit($id = null)
+    public function edit($id)
     {
         $post = $this->Posts->get($id, contain: []);
         if ($this->request->is(['patch', 'post', 'put'])) {
@@ -124,11 +158,11 @@ class PostsController extends AppController
     /**
      * Delete method
      *
-     * @param string|null $id Post id.
+     * @param int $id Post id.
      * @return \Cake\Http\Response|null Redirects to index.
      * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
      */
-    public function delete($id = null)
+    public function delete($id)
     {
         $this->request->allowMethod(['post', 'delete']);
         $post = $this->Posts->get($id);
