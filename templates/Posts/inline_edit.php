@@ -15,7 +15,7 @@ $formOptions = [
 <?php $this->start('edit'); ?>
 <?php if ($mode == 'view'): ?>
     <?php if ($field == 'is_published'): ?>
-        <?= $this->HtmxWidgets->inlineEdit($field, $post->is_published ? 'Published' : 'Unpublished', $post); ?>
+        <?= $this->HtmxWidgets->inlineEdit($field, $post->is_published ? __('Yes') : __('No'), $post); ?>
     <?php elseif ($field == 'body'): ?>
         <?= $this->HtmxWidgets->inlineEdit('body', $this->Text->autoParagraph(h($post->body)), $post) ?>
     <?php elseif ($field == 'overview'): ?>
