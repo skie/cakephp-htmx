@@ -153,3 +153,8 @@
     font-size: 12px;
     white-space: nowrap;
 }
+
+.error-message {
+    color: red;
+    font-weight: bold;
+}

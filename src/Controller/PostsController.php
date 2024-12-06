@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use Cake\Routing\Router;
+
 /**
  * Posts Controller
  *
@@ -101,8 +103,10 @@ class PostsController extends AppController
             if ($this->request->getData('button') == 'cancel') {
                 $mode = 'view';
             } else {
-                $value = $this->request->getData($field);
-                $post->set($field, $value);
+                $data = [
+                    $field => $this->request->getData($field),
+                ];
+                $post = $this->Posts->patchEntity($post, $data);
                 $result = $this->Posts->save($post);
                 if ($result) {
                     $mode = 'view';
@@ -162,14 +166,41 @@ class PostsController extends AppController
         $post = $this->Posts->get($id, contain: []);
         if ($this->request->is(['patch', 'post', 'put'])) {
             $post = $this->Posts->patchEntity($post, $this->request->getData());
-            if ($this->Posts->save($post)) {
-                $this->Flash->success(__('The post has been saved.'));
 
-                return $this->redirect(['action' => 'index']);
+            $success = $this->Posts->save($post);
+            if ($success) {
+                $message = __('The post has been saved.');
+                $status = 'success';
+            } else {
+                $message = __('The post could not be saved. Please, try again.');
+                $status = 'error';
             }
-            $this->Flash->error(__('The post could not be saved. Please, try again.'));
+            $redirect = Router::url(['action' => 'index']);
+
+            if ($this->getRequest()->is('htmx')) {
+                if ($success) {
+                    $response = [
+                        'messages' => [
+                            ['message' => $message, 'status' => $status],
+                        ],
+                        'reload' => true,
+                    ];
+                    return $this->getResponse()
+                        ->withType('json')
+                        ->withHeader('X-Response-Type', 'json')
+                        ->withStringBody(json_encode($response));
+                }
+            } else {
+                $this->Flash->{$status}($message);
+                if ($success) {
+                    return $this->redirect($redirect);
+                }
+            }
         }
         $this->set(compact('post'));
+        if ($this->getRequest()->is('htmx')) {
+            $this->Htmx->setBlock('post');
+        }
     }
 
     /**
@@ -204,7 +235,6 @@ class PostsController extends AppController
                 ->withType('json')
                 ->withHeader('X-Response-Type', 'json')
                 ->withStringBody(json_encode($response));
-
         } else {
             $this->Flash->{$status}($message);
 

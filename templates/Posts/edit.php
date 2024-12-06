@@ -3,6 +3,23 @@
  * @var \App\View\AppView $this
  * @var \App\Model\Entity\Post $post
  */
+
+if ($this->getRequest()->is('htmx')) {
+    $formOptions = [
+        'hx-post' => $this->Url->build([
+            'action' => 'edit',
+            $post->id,
+        ]),
+        'hx-target' => '#modal-area',
+        'hx-headers' => json_encode([
+            'X-Modal-Request' => 'true',
+        ]),
+        'hx-swap' => 'innerHTML',
+    ];
+} else {
+    $formOptions = [];
+}
+
 ?>
 <div class="row">
     <aside class="column">
@@ -17,8 +34,9 @@
         </div>
     </aside>
     <div class="column column-80">
+        <?php $this->start('post'); ?>
         <div class="posts form content">
-            <?= $this->Form->create($post) ?>
+            <?= $this->Form->create($post, $formOptions) ?>
             <fieldset>
                 <legend><?= __('Edit Post') ?></legend>
                 <?php
@@ -31,5 +49,7 @@
             <?= $this->Form->button(__('Submit')) ?>
             <?= $this->Form->end() ?>
         </div>
+        <?php $this->end(); ?>
+        <?= $this->fetch('post'); ?>
     </div>
 </div>
