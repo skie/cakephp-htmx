@@ -56,6 +56,7 @@ class PostsTable extends Table
     {
         $validator
             ->scalar('title')
+            ->minLength('title', 5)
             ->maxLength('title', 255)
             ->requirePresence('title', 'create')
             ->notEmptyString('title');

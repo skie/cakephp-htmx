@@ -37,5 +37,7 @@ class AppView extends View
      */
     public function initialize(): void
     {
+        $this->addHelper('HtmxWidgets');
+        $this->addHelper('Modal');
     }
 }

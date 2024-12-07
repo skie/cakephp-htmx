@@ -17,6 +17,7 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use Cake\Controller\Controller;
+use Cake\Event\EventInterface;
 
 /**
  * Application Controller
@@ -49,5 +50,23 @@ class AppController extends Controller
          * see https://book.cakephp.org/5/en/controllers/components/form-protection.html
          */
         //$this->loadComponent('FormProtection');
+    }
+
+    public function beforeRender(EventInterface $event)
+    {
+        if ($this->isModalRequest()) {
+            $this->viewBuilder()->setLayout('modal');
+            $this->viewBuilder()->enableAutoLayout();
+        }
+    }
+
+    /**
+     * Check if the request is a modal request
+     *
+     * @return bool Whether the request is a modal request
+     */
+    protected function isModalRequest(): bool
+    {
+        return $this->getRequest()->getHeader('X-Modal-Request') !== [];
     }
 }

@@ -34,14 +34,12 @@
                     <?php foreach ($posts as $post): ?>
                     <tr>
                         <td><?= $this->Number->format($post->id) ?></td>
-                        <td><?= h($post->title) ?></td>
-                        <td><?= h($post->is_published) ?></td>
+                        <td><?= $this->HtmxWidgets->inlineEdit('title', $post->title, $post) ?></td>
+                        <td><?= $this->HtmxWidgets->inlineEdit('is_published', $post->is_published ? __('Yes') : __('No'), $post) ?></td>
                         <td><?= h($post->created) ?></td>
                         <td><?= h($post->modified) ?></td>
                         <td class="actions">
-                            <?= $this->Html->link(__('View'), ['action' => 'view', $post->id]) ?>
-                            <?= $this->Html->link(__('Edit'), ['action' => 'edit', $post->id]) ?>
-                            <?= $this->Form->postLink(__('Delete'), ['action' => 'delete', $post->id], ['confirm' => __('Are you sure you want to delete # {0}?', $post->id)]) ?>
+                            <?= $this->element('lazy_actions', ['entity' => $post]) ?>
                         </td>
                     </tr>
                     <?php endforeach; ?>

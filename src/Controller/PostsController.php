@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use Cake\Routing\Router;
+
 /**
  * Posts Controller
  *
@@ -40,7 +42,6 @@ class PostsController extends AppController
         $this->list();
     }
 
-
     /**
      * Common Index method
      *
@@ -67,13 +68,67 @@ class PostsController extends AppController
     }
 
     /**
+     * Table actions
+     *
+     * @param int $id Post id.
+     * @return \Cake\Http\Response|null|void Renders view
+     */
+    public function tableActions(int $id)
+    {
+        $post = $this->Posts->get($id, contain: []);
+        if ($this->getRequest()->is('htmx')) {
+            $this->viewBuilder()->disableAutoLayout();
+
+            $this->Htmx->setBlock('actions');
+        }
+        $this->set(compact('post'));
+    }
+
+    /**
+     * Inline edit
+     *
+     * @param int $id Post id.
+     * @param string $field Field name.
+     * @return \Cake\Http\Response|null|void Renders view
+     */
+    public function inlineEdit(int $id, string $field)
+    {
+        $post = $this->Posts->get($id, contain: []);
+        $allowedFields = ['title', 'overview', 'body', 'is_published'];
+        if (!in_array($field, $allowedFields)) {
+            return $this->response->withStatus(403);
+        }
+        $mode = 'edit';
+        if ($this->request->is(['post', 'put'])) {
+            if ($this->request->getData('button') == 'cancel') {
+                $mode = 'view';
+            } else {
+                $data = [
+                    $field => $this->request->getData($field),
+                ];
+                $post = $this->Posts->patchEntity($post, $data);
+                $result = $this->Posts->save($post);
+                if ($result) {
+                    $mode = 'view';
+                }
+            }
+        }
+        if ($this->getRequest()->is('htmx')) {
+            $this->viewBuilder()->disableAutoLayout();
+
+            $this->Htmx->setBlock('edit');
+        }
+        $this->set(compact('post', 'mode', 'field'));
+    }
+
+    /**
      * View method
      *
-     * @param string|null $id Post id.
+     * @param int $id Post id.
      * @return \Cake\Http\Response|null|void Renders view
      * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
      */
-    public function view($id = null)
+    public function view(int $id)
     {
         $post = $this->Posts->get($id, contain: []);
         $this->set(compact('post'));
@@ -102,33 +157,60 @@ class PostsController extends AppController
     /**
      * Edit method
      *
-     * @param string|null $id Post id.
+     * @param int $id Post id.
      * @return \Cake\Http\Response|null|void Redirects on successful edit, renders view otherwise.
      * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
      */
-    public function edit($id = null)
+    public function edit($id)
     {
         $post = $this->Posts->get($id, contain: []);
         if ($this->request->is(['patch', 'post', 'put'])) {
             $post = $this->Posts->patchEntity($post, $this->request->getData());
-            if ($this->Posts->save($post)) {
-                $this->Flash->success(__('The post has been saved.'));
 
-                return $this->redirect(['action' => 'index']);
+            $success = $this->Posts->save($post);
+            if ($success) {
+                $message = __('The post has been saved.');
+                $status = 'success';
+            } else {
+                $message = __('The post could not be saved. Please, try again.');
+                $status = 'error';
             }
-            $this->Flash->error(__('The post could not be saved. Please, try again.'));
+            $redirect = Router::url(['action' => 'index']);
+
+            if ($this->getRequest()->is('htmx')) {
+                if ($success) {
+                    $response = [
+                        'messages' => [
+                            ['message' => $message, 'status' => $status],
+                        ],
+                        'reload' => true,
+                    ];
+                    return $this->getResponse()
+                        ->withType('json')
+                        ->withHeader('X-Response-Type', 'json')
+                        ->withStringBody(json_encode($response));
+                }
+            } else {
+                $this->Flash->{$status}($message);
+                if ($success) {
+                    return $this->redirect($redirect);
+                }
+            }
         }
         $this->set(compact('post'));
+        if ($this->getRequest()->is('htmx')) {
+            $this->Htmx->setBlock('post');
+        }
     }
 
     /**
      * Delete method
      *
-     * @param string|null $id Post id.
+     * @param int $id Post id.
      * @return \Cake\Http\Response|null Redirects to index.
      * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
      */
-    public function delete($id = null)
+    public function delete($id)
     {
         $this->request->allowMethod(['post', 'delete']);
         $post = $this->Posts->get($id);
@@ -153,7 +235,6 @@ class PostsController extends AppController
                 ->withType('json')
                 ->withHeader('X-Response-Type', 'json')
                 ->withStringBody(json_encode($response));
-
         } else {
             $this->Flash->{$status}($message);
 

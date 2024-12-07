@@ -89,3 +89,72 @@
     min-height: 60px;
     margin-bottom: 1.5rem;
 }
+
+/* inline edit */
+.inline-edit-wrapper {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+.inline-edit-btn {
+    padding: 0.25rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    opacity: 0.5;
+}
+.inline-edit-wrapper:hover .inline-edit-btn {
+    opacity: 1;
+}
+
+.inline-edit-form {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.inline-edit-form .input {
+    margin: 0;
+}
+
+.inline-edit-form input {
+    padding: 0.25rem 0.5rem;
+    height: auto;
+    width: auto;
+}
+
+.inline-edit-actions {
+    display: inline-flex;
+    gap: 0.25rem;
+}
+
+.inline-edit-actions .btn {
+    padding: 0.25rem 0.5rem;
+    line-height: 1;
+    height: auto;
+}
+
+.inline-edit-actions .btn {
+    padding: 0.25rem;
+    min-width: 24px;
+    min-height: 24px;
+}
+
+.inline-edit-actions .btn[title]:hover::after {
+    content: attr(title);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0,0,0,0.8);
+    color: white;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 12px;
+    white-space: nowrap;
+}
+
+.error-message {
+    color: red;
+    font-weight: bold;
+}

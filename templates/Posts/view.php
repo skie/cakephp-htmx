@@ -20,7 +20,7 @@
             <table>
                 <tr>
                     <th><?= __('Title') ?></th>
-                    <td><?= h($post->title) ?></td>
+                    <td><?= $this->HtmxWidgets->inlineEdit('title', $post->title, $post) ?></td>
                 </tr>
                 <tr>
                     <th><?= __('Id') ?></th>
@@ -36,19 +36,19 @@
                 </tr>
                 <tr>
                     <th><?= __('Is Published') ?></th>
-                    <td><?= $post->is_published ? __('Yes') : __('No'); ?></td>
+                    <td><?= $this->HtmxWidgets->inlineEdit('is_published', $post->is_published ? __('Yes') : __('No'), $post) ?></td>
                 </tr>
             </table>
             <div class="text">
                 <strong><?= __('Overview') ?></strong>
                 <blockquote>
-                    <?= $this->Text->autoParagraph(h($post->overview)); ?>
+                    <?=  $this->HtmxWidgets->inlineEdit('overview', $this->Text->autoParagraph(h($post->overview)), $post) ?>
                 </blockquote>
             </div>
             <div class="text">
                 <strong><?= __('Body') ?></strong>
                 <blockquote>
-                    <?= $this->Text->autoParagraph(h($post->body)); ?>
+                    <?= $this->HtmxWidgets->inlineEdit('body', $this->Text->autoParagraph(h($post->body)), $post); ?>
                 </blockquote>
             </div>
         </div>
