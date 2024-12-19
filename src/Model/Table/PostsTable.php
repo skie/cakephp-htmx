@@ -42,6 +42,7 @@ class PostsTable extends Table
         $this->setTable('posts');
         $this->setDisplayField('title');
         $this->setPrimaryKey('id');
+        $this->addBehavior('PlumSearch.Filterable');
 
         $this->addBehavior('Timestamp');
     }

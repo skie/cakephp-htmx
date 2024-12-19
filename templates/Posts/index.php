@@ -4,11 +4,39 @@
  * @var iterable<\App\Model\Entity\Post> $posts
  */
 ?>
+<?= $this->Html->css('CakeDC/SearchFilter.inline'); ?>
+<?= $this->Html->script('CakeDC/SearchFilter.vue3.js'); ?>
+<?= $this->Html->script('CakeDC/SearchFilter.main.js', ['type' => 'module']); ?>
+<?= $this->element('CakeDC/SearchFilter.Search/v_templates'); ?>
 
 <div id="posts" class="posts index content">
 <?php $this->start('posts'); ?>
     <?= $this->Html->link(__('New Post'), ['action' => 'add'], ['class' => 'button float-right']) ?>
     <h3><?= __('Posts') ?></h3>
+
+    <div id="search">
+        <?= $this->Form->create(null, [
+            'id' => 'search-form',
+            'type' => 'get',
+            'hx-get' => $this->Url->build(['controller' => 'Posts', 'action' => 'index']),
+            'hx-target' => "#posts",
+        ]); ?>
+        <div id="ext-search"></div>
+        <?= $this->Form->button('Search', ['type' => 'submit', 'class' => 'btn btn-primary']); ?>
+
+        <?= $this->Form->end(); ?>
+    </div>
+    <script>
+        window._search = window._search || {};
+        window._search.fields = <?= json_encode($viewFields) ?>;
+        var values = null;
+        <?php if (!empty($values)): ?>
+            window._search.values = <?= json_encode($values) ?>;
+        <?php else: ?>
+            window._search.values = {};
+        <?php endif; ?>
+    </script>
+
     <div class="table-container">
         <div id="table-loading" class="htmx-indicator">
             <div class="spinner"></div>
@@ -65,4 +93,20 @@
 <?php $this->end(); ?>
 <?= $this->fetch('posts'); ?>
 </div>
-
+<script>
+function setupTable(reload) {
+    if (reload) {
+        setTimeout(function () {
+            window._search.app.unmount()
+            window._search.createMyApp(window._search.rootElemId)
+        }, 20);
+    }
+}
+document.addEventListener('DOMContentLoaded', function() {
+    window._search.createMyApp(window._search.rootElemId)
+    setupTable(false);
+    htmx.on('htmx:afterRequest', (evt) => {
+        setupTable(true);
+    })
+});
+</script>

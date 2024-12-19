@@ -4,6 +4,12 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use Cake\Routing\Router;
+use Cake\Core\Configure;
+use Cake\Utility\Hash;
+use CakeDC\SearchFilter\Manager;
+use CakeDC\SearchFilter\Model\Filter\Criterion\InCriterion;
+use CakeDC\SearchFilter\Model\Filter\Criterion\LookupCriterion;
+use CakeDC\SearchFilter\Model\Filter\Criterion\OrCriterion;
 
 /**
  * Posts Controller
@@ -12,6 +18,15 @@ use Cake\Routing\Router;
  */
 class PostsController extends AppController
 {
+    /**
+     * @inheritDoc
+     */
+    public function initialize(): void
+    {
+        parent::initialize();
+        $this->loadComponent('PlumSearch.Filter');
+    }
+
     /**
      * Index method
      *
@@ -50,7 +65,53 @@ class PostsController extends AppController
     protected function list()
     {
         $query = $this->Posts->find();
-        $posts = $this->paginate($query, ['limit' => 12]);
+
+        $manager = new Manager($this->request);
+        $collection = $manager->newCollection();
+
+        $collection->add('search', $manager->filters()
+            ->new('string')
+            ->setConditions(new \stdClass())
+            ->setLabel('Search...')
+        );
+        $collection->add('name', $manager->filters()
+            ->new('string')
+            ->setLabel('Name')
+            ->setCriterion(
+                new OrCriterion([
+                    $manager->buildCriterion('title', 'string', $this->Posts),
+                    $manager->buildCriterion('body', 'string', $this->Posts),
+                ])
+            )
+        );
+        $collection->add('created', $manager->filters()
+            ->new('datetime')
+            ->setLabel('Created')
+            ->setCriterion($manager->buildCriterion('created', 'datetime', $this->Posts))
+        );
+        $viewFields = $collection->getViewConfig();
+
+        if (!empty($this->getRequest()->getQuery()) && !empty($this->getRequest()->getQuery('f'))) {
+            $search = $manager->formatSearchData();
+            $this->set('values', $search);
+
+            $this->Posts->addFilter('search', [
+                'className' => 'Multiple',
+                'fields' => [
+                    'title', 'body',
+                ]
+            ]);
+            $this->Posts->addFilter('multiple', [
+                'className' => 'CakeDC/SearchFilter.Criteria',
+                'criteria' => $collection->getCriteria(),
+            ]);
+
+            $filters = $manager->formatFinders($search);
+            $query = $query->find('filters', params: $filters);
+        }
+        $this->set('viewFields', $viewFields);
+
+        $posts = $this->paginate($this->Filter->prg($query), ['limit' => 12]);
         $this->set(compact('posts'));
 
         if ($this->request->is('htmx') || $this->request->is('boosted')) {

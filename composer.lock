@@ -4,8 +4,48 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "4f59269eb6b78967a99c67bf75a734ac",
+    "content-hash": "8218388058c6f14b83304b135a635511",
     "packages": [
+        {
+            "name": "cakedc/search-filter",
+            "version": "2.0.8",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/CakeDC/search-filter.git",
+                "reference": "b3f72257dc6c4bf4830ee55e55f6608bfac50bb4"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/CakeDC/search-filter/zipball/b3f72257dc6c4bf4830ee55e55f6608bfac50bb4",
+                "reference": "b3f72257dc6c4bf4830ee55e55f6608bfac50bb4",
+                "shasum": ""
+            },
+            "require": {
+                "cakephp/cakephp": "^5.0",
+                "php": ">=8.1",
+                "skie/cakephp-search": "^5.0"
+            },
+            "require-dev": {
+                "cakephp/cakephp-codesniffer": "^5.0",
+                "phpunit/phpunit": "^10.0"
+            },
+            "type": "cakephp-plugin",
+            "autoload": {
+                "psr-4": {
+                    "CakeDC\\SearchFilter\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "SearchFilter plugin for CakePHP",
+            "support": {
+                "issues": "https://github.com/CakeDC/search-filter/issues",
+                "source": "https://github.com/CakeDC/search-filter/tree/2.0.8"
+            },
+            "time": "2024-12-03T01:47:12+00:00"
+        },
         {
             "name": "cakephp/cakephp",
             "version": "5.1.2",
@@ -1295,6 +1335,62 @@
                 "source": "https://github.com/cakephp/phinx/tree/0.16.5"
             },
             "time": "2024-10-03T15:41:04+00:00"
+        },
+        {
+            "name": "skie/cakephp-search",
+            "version": "5.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/skie/plum_search.git",
+                "reference": "eb93a9b133e229e63bb1812582f0531f57ec8697"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/skie/plum_search/zipball/eb93a9b133e229e63bb1812582f0531f57ec8697",
+                "reference": "eb93a9b133e229e63bb1812582f0531f57ec8697",
+                "shasum": ""
+            },
+            "require": {
+                "cakephp/cakephp": "^5.0",
+                "cakephp/plugin-installer": "*",
+                "php": ">=8.1"
+            },
+            "require-dev": {
+                "cakephp/cakephp-codesniffer": "^4.0",
+                "phpunit/phpunit": "^10.1.0",
+                "vlucas/phpdotenv": "^3.3"
+            },
+            "type": "cakephp-plugin",
+            "autoload": {
+                "psr-4": {
+                    "PlumSearch\\": "src",
+                    "PlumSearch\\Test\\Fixture\\": "tests\\Fixture"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Evgeny Tomenko",
+                    "homepage": "https://github.com/skie",
+                    "role": "Author"
+                }
+            ],
+            "description": "CakePHP Plum Search plugin",
+            "homepage": "https://github.com/skie/plum-search",
+            "keywords": [
+                "cake",
+                "cakephp",
+                "filter",
+                "search"
+            ],
+            "support": {
+                "issues": "https://github.com/skie/plum-search/issues",
+                "source": "https://github.com/skie/plum-search"
+            },
+            "time": "2023-09-15T20:47:20+00:00"
         },
         {
             "name": "symfony/config",
