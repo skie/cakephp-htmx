@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\Controller\Filter\RangeFilter;
+use App\Model\Filter\Criterion\RangeCriterion;
 use Cake\Routing\Router;
 use Cake\Core\Configure;
 use Cake\Utility\Hash;
@@ -67,12 +69,18 @@ class PostsController extends AppController
         $query = $this->Posts->find();
 
         $manager = new Manager($this->request);
+        $manager->filters()->load('range', ['className' => RangeFilter::class]);
         $collection = $manager->newCollection();
 
         $collection->add('search', $manager->filters()
             ->new('string')
             ->setConditions(new \stdClass())
             ->setLabel('Search...')
+        );
+        $collection->add('id', $manager->filters()
+            ->new('range')
+            ->setLabel('Id Range')
+            ->setCriterion($manager->buildCriterion('id', 'integer', $this->Posts))
         );
         $collection->add('name', $manager->filters()
             ->new('string')
